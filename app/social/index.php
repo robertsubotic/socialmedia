@@ -2,6 +2,10 @@
     require_once '../classes/Post.php';
     require_once '../config/config.php';
 
+    if(!isset($_SESSION['id'])) {
+        header("Location: ../../");
+    }
+
     if($_SERVER["REQUEST_METHOD"] == "POST") {
         $description = $_POST['post_description'];
 
