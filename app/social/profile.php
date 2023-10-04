@@ -2,6 +2,10 @@
     require_once '../config/config.php';
     require_once '../classes/User.php';
 
+    if(!isset($_SESSION['id'])) {
+        header("Location: ../../");
+    }
+
     if($_SERVER["REQUEST_METHOD"] == "POST") {
         $newPassword = $_POST['newPassword'];
         $retypePassword = $_POST['retypePassword'];
