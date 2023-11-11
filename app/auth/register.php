@@ -30,6 +30,12 @@
 
         $created = $user->create($username, $email, $password);
 
+        if (!$created) {
+            $_SESSION['error_message']['text'] = "User already exists with that email or there is a problem with connection!"; 
+            header("Location: register.php"); 
+            exit();
+        }
+
         header("Location: login.php");
     }
 

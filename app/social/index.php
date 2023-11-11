@@ -1,6 +1,9 @@
 <?php
     require_once '../classes/Post.php';
+    require_once '../classes/User.php';
     require_once '../config/config.php';
+
+    $csrf_token = $_SESSION['csrf_token'];
 
     if(!isset($_SESSION['id'])) {
         header("Location: ../../");
@@ -12,6 +15,12 @@
         if(empty($_POST['post_description'])) {
             $_SESSION['error_message']['text'] = "Description Empty!";
             header("Location: index.php");
+            exit();
+        }
+
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $_SESSION['error_message']['text'] = "CSRF Token Validation failed!";
+            header("Location: index.php"); 
             exit();
         }
 
@@ -72,6 +81,7 @@
 
                 <?php endif; ?>
                 <form action="" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <textarea name="post_description" id="post_description" class="w-full p-2 mt-2 border rounded" placeholder="Write your post here..."></textarea>
                     <button type="submit" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Post</button>
                 </form>

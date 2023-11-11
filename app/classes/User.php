@@ -8,8 +8,24 @@
             $this->connection = $connection;
         }
 
+        private function emailExists($email) {
+            $sql_query = "SELECT COUNT(*) FROM user WHERE email = ?";
+            $statement = $this->connection->prepare($sql_query);
+            $statement->bind_param("s", $email);
+            $statement->execute();
+            $statement->bind_result($count);
+            $statement->fetch();
+            $statement->close();
+        
+            return $count > 0;
+        }
+
         public function create($username, $email, $password) {
             $hash_password = password_hash($password, PASSWORD_DEFAULT);
+
+            if ($this->emailExists($email)) {
+                return false;
+            }
             
             $sql_query = "INSERT INTO user (username, email, password) VALUES (?, ?, ?)";
             $statement = $this->connection->prepare($sql_query);
@@ -20,10 +36,9 @@
 
             if ($result) {
                 return true;
-            } else {
-                return false;
-            }
+            } 
 
+            return false;
         }
 
         public function login($email, $password) {
@@ -39,6 +54,11 @@
 
                 if (password_verify($password, $user['password'])) {
                     $_SESSION['id'] = $user['id'];
+                    if (!isset($_SESSION['csrf_token'])) {
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                    }
+                    
+                    $csrf_token = $_SESSION['csrf_token'];
                     return true;
                 }
             }

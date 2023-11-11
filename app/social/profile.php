@@ -6,6 +6,8 @@
         header("Location: ../../");
     }
 
+    $csrf_token = $_SESSION['csrf_token'];
+    
     if($_SERVER["REQUEST_METHOD"] == "POST") {
         $newPassword = $_POST['newPassword'];
         $retypePassword = $_POST['retypePassword'];
@@ -21,6 +23,13 @@
             header("Location: profile.php"); 
             exit();
         }
+
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $_SESSION['error_message']['text'] = "CSRF Token Validation failed!";
+            header("Location: profile.php"); 
+            exit();
+        }
+
         $user = new User();
 
         $user->changePassword($newPassword);
@@ -99,6 +108,7 @@
                 <?php endif; ?>
                 <div id="passwordFields" class="hidden space-y-4">
                     <form action="" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <div>
                             <label for="newPassword" class="block mb-2 font-semibold text-gray-600">New Password:</label>
                             <input type="password" id="newPassword" name="newPassword" class="w-full p-2 border rounded" placeholder="Enter new password">
